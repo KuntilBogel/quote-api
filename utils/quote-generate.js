@@ -499,35 +499,48 @@ class QuoteGenerate {
       await Promise.all(loadCustomEmojiStickerPromises).catch(() => { })
     }
 
-    const EW = (a) => styledWords.every(el => typeof el === 'string' && el.endsWith(a));
 
     let breakWrite = false;
     let lineDirection = this.getLineDirection(styledWords, 0);
-    const styleRules = [
-      { char: "*", styleName: "bold", lastStyleName: "last_bold" },
-      { char: "~", styleName: "strikethrough", lastStyleName: "last_strikethrough" },
-      { char: "_", styleName: "italic", lastStyleName: "last_italic" }
-    ];
+
     
     for (let index = 0; index < styledWords.length; index++) {
-      const styledWord = styledWords[index];
-      const last_styledWord = styledWords[index - 1];
-    
-      const lastWord = last_styledWord?.word?.toString();
-      const lastStyles = last_styledWord?.style || [];
-      const currentWord = styledWord.word?.toString();
-    
-      for (const { char, styleName, lastStyleName } of styleRules) {
-        const startsWithChar = currentWord?.startsWith(char);
-        const endsWithChar = currentWord?.endsWith(char);
-    
-        if (lastWord?.startsWith(char) || lastStyles.includes(styleName) || startsWithChar) {
-          if (!lastStyles.includes(lastStyleName) && EW(char)) {
-            if (!Array.isArray(styledWord.style)) styledWord.style = [];
-            styledWord.style.push(styleName);
-            
-            if (startsWithChar) {
-              styledWord.word = currentWord.slice(1);
+      const styledWord = styledWords[index]
+      const last_styledWord = styledWords[index - 1]
+      if (last_styledWord?.word?.toString()?.startsWith("*") || last_styledWord?.style?.includes("bold") || styledWord?.word?.toString()?.startsWith("*")) {
+        if (!last_styledWord?.style.includes("last_bold")) {
+          if (!Array.isArray(styledWord.style)) styledWord.style = []
+          styledWord.style.push("bold")
+          if (styledWord?.word?.toString()?.startsWith("*")) {
+            styledWord.word = styledWord.word.slice(1)
+          }
+          if (styledWord?.word?.toString()?.endsWith("*")) {
+            styledWord.word = styledWord.word.slice(0, -1);
+            styledWord.style.push("last_bold")
+          }
+        }
+      }
+
+      if (last_styledWord?.word?.toString()?.startsWith("~") || last_styledWord?.style?.includes("strikethrough") || styledWord?.word?.toString()?.startsWith("~")) {
+        if (!last_styledWord?.style.includes("last_strikethrough")) {
+          if (!Array.isArray(styledWord.style)) styledWord.style = []
+          styledWord.style.push("strikethrough")
+          if (styledWord?.word?.toString()?.startsWith("~")) {
+            styledWord.word = styledWord.word.slice(1)
+          }
+          if (styledWord?.word?.toString()?.endsWith("~")) {
+            styledWord.word = styledWord.word.slice(0, -1);
+            styledWord.style.push("last_strikethrough")
+          }
+        }
+      }
+
+      if (last_styledWord?.word?.toString()?.startsWith("_") || last_styledWord?.style?.includes("italic") || styledWord?.word?.toString()?.startsWith("_")) {
+        if (!last_styledWord?.style.includes("last_italic")) {
+          if (!Array.isArray(styledWord.style)) styledWord.style = []
+          styledWord.style.push("italic")
+          if (styledWord?.word?.toString()?.startsWith("~")) {
+            styledWord.word = styledWord.word.slice(1)
             }
             if (endsWithChar) {
               styledWord.word = styledWord.word.slice(0, -1);
@@ -535,7 +548,6 @@ class QuoteGenerate {
             }
           }
         }
-      }
 
       let emojiImage
 

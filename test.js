@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 
-const text = "*Hello World hil ~wowie afyguyehfj n _k yessir"
+const text = "*dia wh*"
 const username = "Alι_Aryαɴ"
 const avatar = "https://telegra.ph/file/59952c903fdfb10b752b3.jpg"
 
