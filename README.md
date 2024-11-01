@@ -1,3 +1,10 @@
+---
+title: quote-api
+sdk: docker
+emoji: 👁
+colorFrom: green
+colorTo: blue
+---
 # quote-api
 
 [![wakatime](https://wakatime.com/badge/github/LyoSU/quote-api.svg)](https://wakatime.com/badge/github/LyoSU/quote-api)

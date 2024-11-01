@@ -12,7 +12,7 @@ const { Telegram } = require('telegraf')
 
 const emojiDb = new EmojiDbLib({ useDefaultDb: true })
 
-function loadFont () {
+function loadFont() {
   console.log('font load start')
   const fontsDir = 'assets/fonts/'
 
@@ -108,11 +108,11 @@ class ColorContrast {
 
 
 class QuoteGenerate {
-  constructor (botToken) {
+  constructor(botToken) {
     this.telegram = new Telegram(botToken)
   }
 
-  async avatarImageLatters (letters, color) {
+  async avatarImageLatters(letters, color) {
     const size = 500
     const canvas = createCanvas(size, size)
     const context = canvas.getContext('2d')
@@ -141,7 +141,7 @@ class QuoteGenerate {
     return canvas.toBuffer()
   }
 
-  async downloadAvatarImage (user) {
+  async downloadAvatarImage(user) {
     let avatarImage
 
     let nameLatters
@@ -160,13 +160,13 @@ class QuoteGenerate {
     const avatarImageCache = avatarCache.get(cacheKey)
 
     const avatarColorArray = [
-      [ '#FF885E', '#FF516A' ], // red
-      [ '#FFCD6A', '#FFA85C' ], // orange
-      [ '#E0A2F3', '#D669ED' ], // purple
-      [ '#A0DE7E', '#54CB68' ], // green
-      [ '#53EDD6', '#28C9B7' ], // sea
-      [ '#72D5FD', '#2A9EF1' ], // blue
-      [ '#FFA8A8', '#FF719A' ] // pink
+      ['#FF885E', '#FF516A'], // red
+      ['#FFCD6A', '#FFA85C'], // orange
+      ['#E0A2F3', '#D669ED'], // purple
+      ['#A0DE7E', '#54CB68'], // green
+      ['#53EDD6', '#28C9B7'], // sea
+      ['#72D5FD', '#2A9EF1'], // blue
+      ['#FFA8A8', '#FF719A'] // pink
     ]
 
     const nameIndex = Math.abs(user.id) % 7
@@ -203,7 +203,7 @@ class QuoteGenerate {
     return avatarImage
   }
 
-  ungzip (input, options) {
+  ungzip(input, options) {
     return new Promise((resolve, reject) => {
       zlib.gunzip(input, options, (error, result) => {
         if (!error) resolve(result)
@@ -212,7 +212,7 @@ class QuoteGenerate {
     })
   }
 
-  async downloadMediaImage (media, mediaSize, type = 'id', crop = true) {
+  async downloadMediaImage(media, mediaSize, type = 'id', crop = true) {
     let mediaUrl
     if (type === 'id') mediaUrl = await this.telegram.getFileLink(media).catch(console.error)
     else mediaUrl = media
@@ -242,7 +242,7 @@ class QuoteGenerate {
     }
   }
 
-  hexToRgb (hex) {
+  hexToRgb(hex) {
     return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
       , (m, r, g, b) => '#' + r + r + g + g + b + b)
       .substring(1).match(/.{2}/g)
@@ -250,7 +250,7 @@ class QuoteGenerate {
   }
 
   // https://codepen.io/andreaswik/pen/YjJqpK
-  lightOrDark (color) {
+  lightOrDark(color) {
     let r, g, b
 
     // Check the format of the color, HEX or RGB?
@@ -288,7 +288,7 @@ class QuoteGenerate {
     }
   }
 
-  async drawMultilineText (text, entities, fontSize, fontColor, textX, textY, maxWidth, maxHeight, emojiBrand = 'apple') {
+  async drawMultilineText(text, entities, fontSize, fontColor, textX, textY, maxWidth, maxHeight, emojiBrand = 'apple') {
     if (maxWidth > 10000) maxWidth = 10000
     if (maxHeight > 10000) maxHeight = 10000
 
@@ -376,18 +376,18 @@ class QuoteGenerate {
         lastChar && (
           (
             (charStyle.emoji && !lastChar.emoji) ||
-              (!charStyle.emoji && lastChar.emoji) ||
-              (charStyle.emoji && lastChar.emoji && charStyle.emoji.index !== lastChar.emoji.index)
+            (!charStyle.emoji && lastChar.emoji) ||
+            (charStyle.emoji && lastChar.emoji && charStyle.emoji.index !== lastChar.emoji.index)
           ) ||
-            (
-              (charStyle.char.match(breakMatch)) ||
-              (charStyle.char.match(spaceMatch) && !lastChar.char.match(spaceMatch)) ||
-              (lastChar.char.match(spaceMatch) && !charStyle.char.match(spaceMatch)) ||
-              (charStyle.style && lastChar.style && charStyle.style.toString() !== lastChar.style.toString())
-            ) || (
-                charStyle.char.match(CJKMatch) ||
-                lastChar.char.match(CJKMatch)
-            )
+          (
+            (charStyle.char.match(breakMatch)) ||
+            (charStyle.char.match(spaceMatch) && !lastChar.char.match(spaceMatch)) ||
+            (lastChar.char.match(spaceMatch) && !charStyle.char.match(spaceMatch)) ||
+            (charStyle.style && lastChar.style && charStyle.style.toString() !== lastChar.style.toString())
+          ) || (
+            charStyle.char.match(CJKMatch) ||
+            lastChar.char.match(CJKMatch)
+          )
         )
       ) {
         stringNum++
@@ -422,7 +422,7 @@ class QuoteGenerate {
 
     const getCustomEmojiStickers = await this.telegram.callApi('getCustomEmojiStickers', {
       custom_emoji_ids: customEmojiIds
-    }).catch(() => {})
+    }).catch(() => { })
 
     const customEmojiStickers = {}
 
@@ -433,19 +433,19 @@ class QuoteGenerate {
         const sticker = getCustomEmojiStickers[index]
 
         loadCustomEmojiStickerPromises.push((async () => {
-          const getFileLink = await this.telegram.getFileLink(sticker.thumb.file_id).catch(() => {})
+          const getFileLink = await this.telegram.getFileLink(sticker.thumb.file_id).catch(() => { })
 
           if (getFileLink) {
-            const load = await loadImageFromUrl(getFileLink).catch(() => {})
+            const load = await loadImageFromUrl(getFileLink).catch(() => { })
             const imageSharp = sharp(load)
             const sharpPng = await imageSharp.png({ lossless: true, force: true }).toBuffer()
 
-            customEmojiStickers[sticker.custom_emoji_id] = await loadImage(sharpPng).catch(() => {})
+            customEmojiStickers[sticker.custom_emoji_id] = await loadImage(sharpPng).catch(() => { })
           }
         })())
       }
 
-      await Promise.all(loadCustomEmojiStickerPromises).catch(() => {})
+      await Promise.all(loadCustomEmojiStickerPromises).catch(() => { })
     }
 
     let breakWrite = false
@@ -463,12 +463,12 @@ class QuoteGenerate {
           if (emojiImageBase) {
             emojiImage = await loadImage(
               Buffer.from(emojiImageBase, 'base64')
-            ).catch(() => {})
+            ).catch(() => { })
           }
           if (!emojiImage) {
             emojiImage = await loadImage(
               Buffer.from(fallbackEmojiImageJson[styledWord.emoji.code], 'base64')
-            ).catch(() => {})
+            ).catch(() => { })
           }
         }
       }
@@ -476,24 +476,33 @@ class QuoteGenerate {
       let fontType = ''
       let fontName = 'NotoSans'
       let fillStyle = fontColor
-
-      if (styledWord.style.includes('bold')) {
+      if (styledWord.style.includes('bold') || /\*\w+\*/.test(styledWord.word)) {
         fontType += 'bold '
+        styledWord.word = styledWord.word.replace(/\*(\w+)\*/g, '$1')
+
       }
-      if (styledWord.style.includes('italic')) {
+
+      if (styledWord.style.includes('italic') || /_\w+_/.test(styledWord.word)) {
         fontType += 'italic '
+        styledWord.word = styledWord.word.replace(/_(\w+)_/g, '$1')
       }
+
       if (styledWord.style.includes('monospace')) {
         fontName = 'NotoSansMono'
         fillStyle = '#5887a7'
       }
-      if (styledWord.style.includes('mention')) {
+
+      if (styledWord.style.includes('mention') || /(https?:\/\/[^\s]+)/g.test(styledWord.word)) {
         fillStyle = '#6ab7ec'
       }
+
+
       if (styledWord.style.includes('spoiler')) {
         const rbaColor = this.hexToRgb(this.normalizeColor(fontColor))
         fillStyle = `rgba(${rbaColor[0]}, ${rbaColor[1]}, ${rbaColor[2]}, 0.15)`
       }
+
+ 
       // else {
       //   canvasCtx.font = `${fontSize}px OpenSans`
       //   canvasCtx.fillStyle = fontColor
@@ -535,7 +544,7 @@ class QuoteGenerate {
           lineX = textX
           lineY += lineHeight
           if (index < styledWords.length - 1) {
-            let nextLineDirection = this.getLineDirection(styledWords, index+1)
+            let nextLineDirection = this.getLineDirection(styledWords, index + 1)
             if (lineDirection != nextLineDirection) textWidth = maxWidth - fontSize * 2
             lineDirection = nextLineDirection
           }
@@ -547,11 +556,15 @@ class QuoteGenerate {
       if (lineWidth > textWidth) textWidth = lineWidth
       if (textWidth > maxWidth) textWidth = maxWidth
 
-      let wordX = (lineDirection == 'rtl') ? maxWidth-lineX-wordlWidth-fontSize * 2 : lineX
+      let wordX = (lineDirection == 'rtl') ? maxWidth - lineX - wordlWidth - fontSize * 2 : lineX
 
       if (emojiImage) {
         canvasCtx.drawImage(emojiImage, wordX, lineY - fontSize + (fontSize * 0.15), fontSize + (fontSize * 0.22), fontSize + (fontSize * 0.22))
       } else {
+        if(/~\w+~/.test(styledWord.word)) {
+          styledWord.word = styledWord.word.replace(/~(\w+)~/g, '$1')
+          canvasCtx.fillRect(wordX, lineY - fontSize / 2.8, canvasCtx.measureText(styledWord.word).width, fontSize * 0.1)
+        }
         canvasCtx.fillText(styledWord.word, wordX, lineY)
 
         if (styledWord.style.includes('strikethrough')) canvasCtx.fillRect(wordX, lineY - fontSize / 2.8, canvasCtx.measureText(styledWord.word).width, fontSize * 0.1)
@@ -573,7 +586,7 @@ class QuoteGenerate {
   }
 
   // https://stackoverflow.com/a/3368118
-  drawRoundRect (color, w, h, r) {
+  drawRoundRect(color, w, h, r) {
     const x = 0
     const y = 0
 
@@ -597,7 +610,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  drawGradientRoundRect (colorOne, colorTwo, w, h, r) {
+  drawGradientRoundRect(colorOne, colorTwo, w, h, r) {
     const x = 0
     const y = 0
 
@@ -625,7 +638,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  colorLuminance (hex, lum) {
+  colorLuminance(hex, lum) {
     hex = String(hex).replace(/[^0-9a-f]/gi, '')
     if (hex.length < 6) {
       hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
@@ -645,7 +658,7 @@ class QuoteGenerate {
     return rgb
   }
 
-  roundImage (image, r) {
+  roundImage(image, r) {
     const w = image.width
     const h = image.height
 
@@ -671,7 +684,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  deawReplyLine (lineWidth, height, color) {
+  deawReplyLine(lineWidth, height, color) {
     const canvas = createCanvas(20, height)
     const context = canvas.getContext('2d')
     context.beginPath()
@@ -684,7 +697,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  async drawAvatar (user) {
+  async drawAvatar(user) {
     const avatarImage = await this.downloadAvatarImage(user)
 
     if (avatarImage) {
@@ -707,7 +720,7 @@ class QuoteGenerate {
     }
   }
 
-  drawLineSegment (ctx, x, y, width, isEven) {
+  drawLineSegment(ctx, x, y, width, isEven) {
     ctx.lineWidth = 35 // how thick the line is
     ctx.strokeStyle = '#aec6cf' // what color our line is
     ctx.beginPath()
@@ -719,7 +732,7 @@ class QuoteGenerate {
     ctx.stroke()
   }
 
-  drawWaveform (data) {
+  drawWaveform(data) {
     const normalizedData = data.map(i => i / 32)
 
     const canvas = createCanvas(4500, 500)
@@ -743,7 +756,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  async drawQuote (scale = 1, backgroundColorOne, backgroundColorTwo, avatar, replyName, replyNameColor, replyText, name, text, media, mediaType, maxMediaSize) {
+  async drawQuote(scale = 1, backgroundColorOne, backgroundColorTwo, avatar, replyName, replyNameColor, replyText, name, text, media, mediaType, maxMediaSize) {
     const avatarPosX = 0 * scale
     const avatarPosY = 5 * scale
     const avatarSize = 50 * scale
@@ -885,7 +898,7 @@ class QuoteGenerate {
     return canvas
   }
 
-  normalizeColor (color) {
+  normalizeColor(color) {
     const canvas = createCanvas(0, 0)
     const canvasCtx = canvas.getContext('2d')
 
@@ -895,10 +908,10 @@ class QuoteGenerate {
     return color
   }
 
-  getLineDirection (words, start_index) {
+  getLineDirection(words, start_index) {
     const RTLMatch = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/
     const neutralMatch = /[\u0000-\u0040\u005B-\u0060\u007B-\u00BF\u00D7\u00F7\u02B9-\u02FF\u2000-\u2BFF\u2010-\u2029\u202C\u202F-\u2BFF\u1F300-\u1F5FF\u1F600-\u1F64F]/
-    
+
     for (let index = start_index; index < words.length; index++) {
       if (words[index].word.match(RTLMatch)) {
         return 'rtl'
@@ -910,7 +923,7 @@ class QuoteGenerate {
     return 'ltr'
   }
 
-  async generate (backgroundColorOne, backgroundColorTwo, message, width = 512, height = 512, scale = 2, emojiBrand = 'apple') {
+  async generate(backgroundColorOne, backgroundColorTwo, message, width = 512, height = 512, scale = 2, emojiBrand = 'apple') {
     if (!scale) scale = 2
     if (scale > 20) scale = 20
     width *= scale

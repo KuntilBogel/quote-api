@@ -284,7 +284,7 @@ module.exports = async (parm) => {
     canvasPicCtx.textAlign = 'center'
     canvasPicCtx.translate(70, canvasPic.height / 2)
     canvasPicCtx.rotate(-Math.PI / 2)
-    canvasPicCtx.fillText('@QuotLyBot', 0, 0)
+    if (parm.watermark) canvasPicCtx.fillText(parm.watermark || '@QuotLyBot', 0, 0)
 
     quoteImage = await sharp(canvasPic.toBuffer()).png({ lossless: true, force: true }).toBuffer()
   } else {
