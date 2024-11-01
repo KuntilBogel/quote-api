@@ -319,7 +319,6 @@ class QuoteGenerate {
         char,
         style: []
       }
-
       if (entities && typeof entities === 'string') styledChar[charIndex].style.push(entities)
     }
 
@@ -371,7 +370,6 @@ class QuoteGenerate {
     for (let index = 0; index < styledChar.length; index++) {
       const charStyle = styledChar[index]
       const lastChar = styledChar[index - 1]
-
       if (
         lastChar && (
           (
@@ -397,12 +395,65 @@ class QuoteGenerate {
         styledWords[stringNum] = {
           word: charStyle.char
         }
-
         if (charStyle.style) styledWords[stringNum].style = charStyle.style
         if (charStyle.emoji) styledWords[stringNum].emoji = charStyle.emoji
         if (charStyle.customEmojiId) styledWords[stringNum].customEmojiId = charStyle.customEmojiId
       } else styledWords[stringNum].word += charStyle.char
     }
+    // const { createCanvas } = require('canvas');
+    // const fs = require('fs');
+
+    // // Sample text with newlines and bold markers (*)
+    // const text = "Hello,\n*My world*,\nHow are you? *where he is*";
+
+    // // Split text by lines to handle newlines (\n)
+    // const lines = text.split('\n');
+
+    // // Canvas setup
+    // const canvas = createCanvas(400, 200);  // Width and height in pixels
+    // const ctx = canvas.getContext('2d');
+
+    // // Background color
+    // ctx.fillStyle = 'black';  // Set background to black
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // // Set text color to white
+    // ctx.fillStyle = 'white';
+
+    // // Initial text position
+    // let yPos = 30;
+    // const lineHeight = 30;  // Vertical space between lines
+
+    // // Process each line
+    // lines.forEach((line) => {
+    //     // Split the line into parts: normal text and bolded parts between *
+    //     const parts = line.split(/(\*.*?\*)/);
+
+    //     let xPos = 10; // Starting x position for each line
+
+    //     parts.forEach((part) => {
+    //         if (part.startsWith('*') && part.endsWith('*')) {
+    //             const boldText = part.slice(1, -1);
+    //             ctx.font = 'bold 20px Arial';
+    //             ctx.fillText(boldText, xPos, yPos);
+    //             xPos += ctx.measureText(boldText).width; // Move x position after bold text
+    //         } else {
+    //             ctx.font = '20px Arial';
+    //             ctx.fillText(part, xPos, yPos);
+    //             xPos += ctx.measureText(part).width; // Move x position after normal text
+    //         }
+    //     });
+
+    //     // Move y position down for the next line if there’s more text
+    //     yPos += lineHeight;
+    // });
+
+    // // Save the canvas to a file
+    // const out = fs.createWriteStream(__dirname + '/output.png');
+    // const stream = canvas.createPNGStream();
+    // stream.pipe(out);
+
+    // out.on('finish', () => console.log('The image was saved as output.png'));
 
     let lineX = textX
     let lineY = textY
@@ -448,10 +499,43 @@ class QuoteGenerate {
       await Promise.all(loadCustomEmojiStickerPromises).catch(() => { })
     }
 
-    let breakWrite = false
-    let lineDirection = this.getLineDirection(styledWords, 0)
+    const EW = (a) => styledWords.every(el => typeof el === 'string' && el.endsWith(a));
+
+    let breakWrite = false;
+    let lineDirection = this.getLineDirection(styledWords, 0);
+    const styleRules = [
+      { char: "*", styleName: "bold", lastStyleName: "last_bold" },
+      { char: "~", styleName: "strikethrough", lastStyleName: "last_strikethrough" },
+      { char: "_", styleName: "italic", lastStyleName: "last_italic" }
+    ];
+    
     for (let index = 0; index < styledWords.length; index++) {
-      const styledWord = styledWords[index]
+      const styledWord = styledWords[index];
+      const last_styledWord = styledWords[index - 1];
+    
+      const lastWord = last_styledWord?.word?.toString();
+      const lastStyles = last_styledWord?.style || [];
+      const currentWord = styledWord.word?.toString();
+    
+      for (const { char, styleName, lastStyleName } of styleRules) {
+        const startsWithChar = currentWord?.startsWith(char);
+        const endsWithChar = currentWord?.endsWith(char);
+    
+        if (lastWord?.startsWith(char) || lastStyles.includes(styleName) || startsWithChar) {
+          if (!lastStyles.includes(lastStyleName) && EW(char)) {
+            if (!Array.isArray(styledWord.style)) styledWord.style = [];
+            styledWord.style.push(styleName);
+            
+            if (startsWithChar) {
+              styledWord.word = currentWord.slice(1);
+            }
+            if (endsWithChar) {
+              styledWord.word = styledWord.word.slice(0, -1);
+              styledWord.style.push(lastStyleName);
+            }
+          }
+        }
+      }
 
       let emojiImage
 
@@ -479,7 +563,6 @@ class QuoteGenerate {
       if (styledWord.style.includes('bold') || /\*\w+\*/.test(styledWord.word)) {
         fontType += 'bold '
         styledWord.word = styledWord.word.replace(/\*(\w+)\*/g, '$1')
-
       }
 
       if (styledWord.style.includes('italic') || /_\w+_/.test(styledWord.word)) {
@@ -502,7 +585,7 @@ class QuoteGenerate {
         fillStyle = `rgba(${rbaColor[0]}, ${rbaColor[1]}, ${rbaColor[2]}, 0.15)`
       }
 
- 
+
       // else {
       //   canvasCtx.font = `${fontSize}px OpenSans`
       //   canvasCtx.fillStyle = fontColor
@@ -561,7 +644,7 @@ class QuoteGenerate {
       if (emojiImage) {
         canvasCtx.drawImage(emojiImage, wordX, lineY - fontSize + (fontSize * 0.15), fontSize + (fontSize * 0.22), fontSize + (fontSize * 0.22))
       } else {
-        if(/~\w+~/.test(styledWord.word)) {
+        if (/~\w+~/.test(styledWord.word)) {
           styledWord.word = styledWord.word.replace(/~(\w+)~/g, '$1')
           canvasCtx.fillRect(wordX, lineY - fontSize / 2.8, canvasCtx.measureText(styledWord.word).width, fontSize * 0.1)
         }
